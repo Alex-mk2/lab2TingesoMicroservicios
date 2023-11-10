@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: cuota-service
+  cloud:
+    config:
+      enabled: true
+      uri: http://localhost:8081
+  datasource:
+    url: jdbc:mysql://localhost:3306/cuotas
+    username: root
+    password: alex31245
+  jpa:
+    hibernate:
+      ddl-auto: update
