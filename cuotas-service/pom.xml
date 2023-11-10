@@ -8,7 +8,7 @@
 		<version>2.5.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>lab2TingesoM2S</groupId>
+	<groupId>lab2TingesoM2</groupId>
 	<artifactId>cuotas-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>cuotas-service</name>
@@ -53,6 +53,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
