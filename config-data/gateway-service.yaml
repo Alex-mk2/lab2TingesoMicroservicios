@@ -1,31 +1,38 @@
 server:
   port: 8080
-  
 eureka:
   client:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      default-zone: http://localhost:8761/eureka
+      default-zone: http://eureka-service:8761/eureka
   instance:
     hostname: localhost
-
 spring:
   cloud:
     gateway:
       discovery:
         locator:
           enabled: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: '*'
+            allowed-methods: "*"
+            allowed-headers: "*"
+            allow-credentials: true
       routes:
-        - id: student-service
-          uri: lb://student-service
+        - id: cuotas-service
+          uri: lb://cuotas-service
           predicates:
-            - Path=/student/**
-        - id: book-service
-          uri: lb://book-service
+            - Path=/cuotas/**
+        - id: estudiante-service
+          uri: lb://estudiante-service
           predicates:
-            - Path=/book/**
-        - id: pet-service
-          uri: lb://pet-service
+            - Path=/estudiantes/**
+        - id: pruebas-service
+          uri: lb://pruebas-service
           predicates:
-            - Path=/pet/**
+            - Path=/pruebas/**
