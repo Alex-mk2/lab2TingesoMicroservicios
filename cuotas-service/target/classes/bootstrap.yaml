@@ -1,7 +1,9 @@
+server:
+  port: 8085
 spring:
   devtools:
     restart:
-      aditional-paths: src/main/java
+      aditional-paths: src/main/java/lab2TingesoM2
   application:
     name: cuotas-service
   cloud:
@@ -19,5 +21,9 @@ spring:
     url: jdbc:mysql://localhost:3306/cuotas?autorReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: alex31245
-    server:
-      port: 8069
+    logging:
+      level:
+        org.springframework.core.env: DEBUG
+        org.springframework.boot.web.server: DEBUG
+
+
