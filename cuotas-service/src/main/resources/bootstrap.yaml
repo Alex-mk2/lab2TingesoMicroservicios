@@ -19,3 +19,5 @@ spring:
     url: jdbc:mysql://localhost:3306/cuotas?autorReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: alex31245
+    server:
+      port: 8069

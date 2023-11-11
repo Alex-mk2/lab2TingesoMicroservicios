@@ -31,7 +31,7 @@ public class cuotaService{
     }
 
     public List<cuotaEntity> obtenerCuotasPorRut(String rut){
-        estudianteModel estudiante = restTemplate.getForObject("http://localhost:8080/estudiantes/ByRut/" + rut, estudianteModel.class);
+        estudianteModel estudiante = restTemplate.getForObject("http://localhost:8090/estudiante/ByRut/" + rut, estudianteModel.class);
         if(estudiante == null){
             List<cuotaEntity> listaCuotasEstudiante = new ArrayList<cuotaEntity>();
             cuotaEntity cuota = new cuotaEntity();
