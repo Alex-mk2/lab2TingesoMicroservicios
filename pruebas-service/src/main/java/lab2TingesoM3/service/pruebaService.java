@@ -170,7 +170,7 @@ public class pruebaService{
 
         try {
             /* Se busca el estudiante */
-            Estudiante = restTemplate.getForObject("http://localhost:8001/student/ByRut/" + Rut_Estudiante,
+            Estudiante = restTemplate.getForObject("http://localhost:8001/estudiante/ByRut/" + Rut_Estudiante,
                     estudianteModel.class);
 
             /* Caso en que el estudiante no existe */
