@@ -7,7 +7,7 @@ import java.util.List;
 import lab2TingesoM1.service.estudianteService;
 
 @RestController
-@RequestMapping("/estudiante")
+@RequestMapping("/estudiantes")
 @CrossOrigin("*")
 public class estudianteController{
 

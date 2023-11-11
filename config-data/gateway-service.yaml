@@ -27,7 +27,7 @@ spring:
         - id: estudiante-service
           uri: lb://estudiante-service
           predicates:
-            - Path=/estudiante/**
+            - Path=/estudiantes/**
         - id: cuotas-service
           uri: lb://cuotas-service
           predicates:
