@@ -60,7 +60,71 @@ export default function Inicio() {
 
   return (
     <ThemeProvider theme={theme}>
-      {/* Aquí va el resto de tu código para renderizar el componente */}
+      <CssBaseline />
+      <AppBar position="relative">
+        <Toolbar>
+          <Typography variant="h6" color="inherit" noWrap>
+            TopEducation 2023
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <main>
+        {/* Hero unit */}
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            pt: 8,
+            pb: 6,
+          }}
+        >
+          <Container maxWidth="md">
+            <Typography
+              component="h1"
+              variant="h2"
+              align="center"
+              color="text.primary"
+              gutterBottom
+            >
+              TopEducation 2023
+            </Typography>
+            <Typography variant="h5" align="center" color="text.secondary" paragraph>
+              Construccion TopEducation 2023 a través de react
+            </Typography>
+            <Stack
+              sx={{ pt: 4 }}
+              direction="row"
+              spacing={2}
+              justifyContent="center"
+            >
+              <Button variant="contained" onClick={() => handleButtonClick(1)}>
+                Registrar estudiante
+              </Button>
+              <Button variant="contained" onClick={() => handleButtonClick(2)}>Listar estudiantes</Button>
+              <Button variant="contained" onClick={() => handleButtonClick(3)}>mostrar arancel</Button>
+              <Button variant="contained" onClick={() => handleButtonClick(4)}>registrar pago arancel</Button>
+              <Button variant="contained" onClick={() => handleGenerarTablasPorClick()}>subir archivo csv</Button>
+            </Stack>
+          </Container>
+        </Box>
+        <Container maxWidth="md">
+          {componentToDisplay}
+        </Container>
+      </main>
+      {/* Footer */}
+      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
+        <Typography variant="h6" align="center" gutterBottom>
+          Footer
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          align="center"
+          color="text.secondary"
+          component="p"
+        >
+          Pagina en construccion falta conectar al backend
+        </Typography>
+      </Box>
+      {/* End footer */}
     </ThemeProvider>
   );
 }
