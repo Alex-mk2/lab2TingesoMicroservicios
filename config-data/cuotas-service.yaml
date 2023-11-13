@@ -1,5 +1,5 @@
 server:
-  port: 8086
+  port: 8085
 eureka:
   client:
     fetch-registry: true
@@ -11,5 +11,8 @@ eureka:
 management:
   endpoints:
     web:
-      explosure:
+      exposure:
         include: "*"
+  logging:
+    level:
+      org.springframework.core.env: DEBUG
