@@ -19,7 +19,7 @@ public class cuotaEntity{
     private int idEstudiante;
     private Float monto;
     private String tipoPago;
-    private String estadoPago;
+    private String estadoCuota;
     private Float montoPagado;
     private LocalDate fechaCreacion;
     private LocalDate fechaPago;

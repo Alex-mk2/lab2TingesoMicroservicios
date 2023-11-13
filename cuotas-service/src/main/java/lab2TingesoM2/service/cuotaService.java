@@ -1,150 +1,211 @@
 package lab2TingesoM2.service;
+
 import lab2TingesoM2.entity.cuotaEntity;
 import lab2TingesoM2.model.estudianteModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import lab2TingesoM2.repository.cuotaRepository;
 
-@Service
-public class cuotaService{
-    private final cuotaRepository cuotaRepository;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Objects;
 
+@Service
+public class cuotaService {
     @Autowired
-    public cuotaService(cuotaRepository cuotaRepository){
-        this.cuotaRepository = cuotaRepository;
-    }
+    cuotaRepository cuotaRepository;
+
     @Autowired
     RestTemplate restTemplate;
 
-    private final static Logger logger = LoggerFactory.getLogger(cuotaService.class);
+    public ArrayList<cuotaEntity> ObtenerCuotasPorRutEstudiante(String Rut) {
+        /* Búsqueda de ID de estudiante */
+        ResponseEntity<estudianteModel> responseEntity = restTemplate.exchange(
+                "http://localhost:8080/estudiante/byRut/" + Rut,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<estudianteModel>(){}
+        );
 
-    public List<cuotaEntity> getAllCuotas(){
-        List<cuotaEntity> cuotas = cuotaRepository.findAll();
-        logger.info(cuotas.toString());
-        return cuotaRepository.findAll();
-    }
+        /* Se verifica que el estudiante exista */
+        if (responseEntity.getStatusCode() != HttpStatus.OK || responseEntity.getBody() == null) {
+            /* Se crea estructura con 1 elemento */
+            ArrayList<cuotaEntity> listafinal = new ArrayList<cuotaEntity>();
+            cuotaEntity cuotaEntity = new cuotaEntity();
+            cuotaEntity.setMesesAtraso(-1);
+            listafinal.add(cuotaEntity);
 
-    public List<cuotaEntity> obtenerCuotasPorRut(String rut){
-        estudianteModel estudiante = restTemplate.getForObject("http://localhost:8090/estudiante/ByRut/" + rut, estudianteModel.class);
-        if(estudiante == null){
-            List<cuotaEntity> listaCuotasEstudiante = new ArrayList<cuotaEntity>();
-            cuotaEntity cuota = new cuotaEntity();
-            cuota.setMesesAtraso(-1);
-            listaCuotasEstudiante.add(cuota);
-            return listaCuotasEstudiante;
-        }else{
-            return cuotaRepository.findAllByIdEstudiante(estudiante.getIdEstudiante());
-        }
-    }
-
-    public cuotaEntity buscarCuotaPorId(int idCuota){
-        return cuotaRepository.findCuotaByIdCuota(idCuota);
-    }
-
-    public cuotaEntity actualizarCuotaEstudiante(int idCuota) {
-        cuotaEntity cuotaEstudiante = cuotaRepository.findCuotaByIdCuota(idCuota);
-        if (cuotaEstudiante == null) {
-            throw new RuntimeException("Cuota de estudiante no encontrada");
-        }
-        cuotaEstudiante.setEstadoPago(cuotaEstudiante.getEstadoPago().equals("Pagado") ? "Pago atrasado" : "Pagado");
-        cuotaEstudiante.setFechaPago(LocalDate.now());
-        return cuotaRepository.save(cuotaEstudiante);
-    }
-    public int maximoCuotasEstudiante(String tipoColegio) {
-        if ("Municipal".equals(tipoColegio)) {
-            return 10;
-        } else if ("Subvencionado".equals(tipoColegio)) {
-            return 7;
-        } else if ("Privado".equals(tipoColegio)) {
-            return 4;
+            return listafinal;
         } else {
-            return 0;
+            /* Búsqueda de conjunto de cuotas por ID estudiante */
+            return cuotaRepository.findAllByIdEstudiante(responseEntity.getBody().getIdEstudiante());
         }
     }
 
-    public List<cuotaEntity> errorCuota(List<cuotaEntity> cuotasCreadas, int error){
-        cuotaEntity cuotaErronea = new cuotaEntity();
-        cuotaErronea.setMesesAtraso(error);
-        cuotasCreadas.add(cuotaErronea);
-        return cuotasCreadas;
+    public cuotaEntity BuscarPorID(int idCuota){ return cuotaRepository.findByIdCuota(idCuota);}
+
+    public cuotaEntity RegistrarEstadoDePagoCuota(int idCuota){
+        /*Se busca cuentas existentes*/
+        cuotaEntity CuotaExistente = cuotaRepository.findByIdCuota(idCuota);
+
+        /*Se verifica que no se modifique una cuota en estado pagado*/
+        if("Pagado".equals(CuotaExistente.getEstadoCuota())) { /*Cuota ya pagada*/
+            return CuotaExistente;
+        }
+
+        /*Se verifica estado de la cuota*/
+        if("Atrasada".equals(CuotaExistente.getEstadoCuota())) { /*Cuota atrasada*/
+            /*Actualización de estado*/
+            CuotaExistente.setEstadoCuota("Pagado (con atraso)");
+        }
+        else {
+            CuotaExistente.setEstadoCuota("Pagado");
+        }
+
+        /*Cambio de fechas*/
+        CuotaExistente.setFechaCreacion(CuotaExistente.getFechaPago());
+        CuotaExistente.setFechaPago(LocalDate.now());
+
+        /*Retorno*/
+        return cuotaRepository.save(CuotaExistente);
     }
 
-    public float calcularArancelEstudiante(estudianteModel estudiante){
-        float arancelReal = 1500000;
-        if("Municipal".equals(estudiante.getTipoColegio())){
-            arancelReal -= (float) (1500000*0.2);
-        }else if("Subvencionado".equals(estudiante.getTipoColegio())){
-            arancelReal -= (float) (1500000 * 0.1);
+    public ArrayList<cuotaEntity> GenerarCuotasDeEstudiante(String Rut, Integer Cantidad, String Tipo) {
+        /*Elementos Internos*/
+        cuotaEntity errorCuota = new cuotaEntity(); //Modelo de cuotas para errores.
+        cuotaEntity ModeloCuota;    //Entidad que sirve como modelo de cuota.
+        ArrayList<cuotaEntity> cuotasGeneradas = new ArrayList<>(); //Arreglo de salida.
+        cuotaEntity Matricula; //Registro de matricula como primer pago
+        float ArancelReal;
+
+        /* Se busca usuario para generar cuotas */
+        ResponseEntity<estudianteModel> responseEntity = restTemplate.exchange(
+                "http://localhost:8080/estudiante/byRut/" + Rut,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<estudianteModel>(){}
+        );
+
+        /*Control de entrada*/
+        //Existencia previa de cuotas.
+        /*Rut no registrado*/
+        if(responseEntity.getStatusCode() != HttpStatus.OK || responseEntity.getBody() == null){
+            errorCuota.setMesesAtraso(-6);
+            cuotasGeneradas.add(errorCuota);
+            return cuotasGeneradas;
         }
-        if(estudiante.getEgresoColegio() == 0){
-            arancelReal-= (float) (15000000 * 0.15);
-        }else if(estudiante.getEgresoColegio() <= 2){
-            arancelReal-= (float) (15000000 * 0.08);
-        } else if (estudiante.getEgresoColegio() <= 4){
-            arancelReal-= (float) (15000000 * 0.04);
+        //Existencia previa de cuotas.
+        else if(!cuotaRepository.findAllByIdEstudiante(responseEntity.getBody().getIdEstudiante()).isEmpty()){
+            errorCuota.setMesesAtraso(-2);
+            cuotasGeneradas.add(errorCuota);
+            return cuotasGeneradas;
         }
-        return arancelReal;
+        else if(Cantidad > 1 && Tipo.equals("Contado")){ //Más de una cuota al contado.
+            /*Se entrega un arreglo de 1 elemento que establece el error*/
+            errorCuota.setMesesAtraso(-1);
+            cuotasGeneradas.add(errorCuota);
+            return cuotasGeneradas;
+        }
+        //Bloque de condiciones por número máximo de cuotas.
+        else if(Cantidad > 10 && responseEntity.getBody().getTipoColegio().equals("Municipal")){
+            errorCuota.setMesesAtraso(-3);
+            cuotasGeneradas.add(errorCuota);
+            return cuotasGeneradas;
+        }
+        else if(Cantidad > 7 && responseEntity.getBody().getTipoColegio().equals("Subvencionado")){
+            errorCuota.setMesesAtraso(-4);
+            cuotasGeneradas.add(errorCuota);
+            return cuotasGeneradas;
+        }
+        else if(Cantidad > 4 && responseEntity.getBody().getTipoColegio().equals("Privado")){
+            errorCuota.setMesesAtraso(-5);
+            cuotasGeneradas.add(errorCuota);
+            return cuotasGeneradas;
+        }
+
+        /*Se establece primera cuota como pago de matricula*/
+        Matricula = new cuotaEntity();
+        Matricula.setIdEstudiante(responseEntity.getBody().getIdEstudiante());
+        Matricula.setMonto((float) (70000));   //Valor de matricula.
+        Matricula.setTipoPago("Contado");
+        Matricula.setEstadoCuota("Pagado");
+        Matricula.setMontoPagado((float) 70000);
+        Matricula.setFechaCreacion(LocalDate.now());
+        Matricula.setFechaPago(LocalDate.now());
+        Matricula.setMesesAtraso(0);
+        cuotasGeneradas.add(Matricula);
+        cuotaRepository.save(Matricula);
+
+        /*Se establecen valores de descuentos*/
+        ArancelReal = (float) 1500000;
+
+        /*Descuento por procedencia*/
+        switch (responseEntity.getBody().getTipoColegio()) {
+            case "Municipal" -> ArancelReal = ArancelReal - ((float) (1500000 * 0.20));
+            case "Subvencionado" -> ArancelReal = ArancelReal - ((float) (1500000 * 0.10));
+            default -> {
+            }
+        }
+
+        /*Descuento por años de egreso en el colegio*/
+        if(responseEntity.getBody().getEgresoColegio() == 0){
+            ArancelReal = ArancelReal -  ((float) (1500000*0.15));
+        }
+        else if(responseEntity.getBody().getEgresoColegio() <= 2){
+            ArancelReal = ArancelReal -  ((float) (1500000*0.08));
+        }
+        else if(responseEntity.getBody().getEgresoColegio() <= 4){
+            ArancelReal = ArancelReal -  ((float) (1500000*0.04));
+        }
+
+        /* Se ingresan cuotas a la lista */
+        if(Objects.equals(Tipo, "Contado")) {
+            ModeloCuota = new cuotaEntity();
+            ModeloCuota.setIdEstudiante(responseEntity.getBody().getIdEstudiante());
+            ModeloCuota.setMonto((float) (1500000 / 2));
+            ModeloCuota.setTipoPago("Contado");
+            ModeloCuota.setEstadoCuota("Pendiente");
+            ModeloCuota.setMontoPagado((float) 1500000/2);
+            ModeloCuota.setFechaCreacion(LocalDate.now());
+            ModeloCuota.setMesesAtraso(0);
+
+            cuotaRepository.save(ModeloCuota); // Guarda la cuota en la base de datos
+            cuotasGeneradas.add(ModeloCuota); // Agrega la cuota a la lista de cuotas generadas
+        }
+        else {
+            /*Otros casos*/
+            for (int i = 0; i < Cantidad; i++) {
+                /* Se establece modelo de cuotas */
+                ModeloCuota = new cuotaEntity();
+                ModeloCuota.setIdEstudiante(responseEntity.getBody().getIdEstudiante());
+                ModeloCuota.setMonto((float) (1500000 / Cantidad));
+                ModeloCuota.setTipoPago("Cuotas");
+                ModeloCuota.setEstadoCuota("Pendiente");
+                ModeloCuota.setMontoPagado(ArancelReal / Cantidad);
+                ModeloCuota.setFechaCreacion(LocalDate.now());
+                ModeloCuota.setMesesAtraso(0);
+
+                cuotaRepository.save(ModeloCuota); // Guarda la cuota en la base de datos
+                cuotasGeneradas.add(ModeloCuota); // Agrega la cuota a la lista de cuotas generadas
+            }
+        }
+
+        /* Se retorna la lista de cuotas generadas */
+        return cuotasGeneradas;
     }
 
-    public cuotaEntity crearCuotaMatricula(estudianteModel estudiante){
-        cuotaEntity matricula = new cuotaEntity();
-        matricula.setIdEstudiante(estudiante.getIdEstudiante());
-        matricula.setMonto((float) 70000);
-        matricula.setTipoPago("Contado");
-        matricula.setEstadoPago("Pagado");
-        matricula.setMontoPagado((float) 70000);
-        matricula.setFechaCreacion(LocalDate.now());
-        matricula.setFechaPago(LocalDate.now());
-        matricula.setMesesAtraso(0);
-        return matricula;
+    public ArrayList<cuotaEntity> ObtenerTodas(){
+        return (ArrayList<cuotaEntity>) cuotaRepository.findAll();
     }
 
-
-
-    public cuotaEntity crearCuota(estudianteModel estudiante, float arancelReal, int cantidad, String tipoCuota){
-        cuotaEntity cuota = new cuotaEntity();
-        cuota.setIdEstudiante(estudiante.getIdEstudiante());
-        cuota.setMonto(arancelReal / cantidad);
-        cuota.setTipoPago(tipoCuota);
-        cuota.setEstadoPago("Pendiente");
-        cuota.setMontoPagado(arancelReal / cantidad);
-        cuota.setFechaCreacion(LocalDate.now());
-        cuota.setMesesAtraso(0);
-        return cuota;
-    }
-
-    public List<cuotaEntity> crearPlanillaCuotasEstudiante(String rut, Integer cantidad, String tipoCuota){
-        estudianteModel estudiante = restTemplate.getForObject("http://Localhost:8090/estudiante/ByRut" + rut, estudianteModel.class);
-        ArrayList<cuotaEntity> listaCuotas = new ArrayList<>();
-        if(estudiante == null){
-            return errorCuota(listaCuotas, -6);
-        }
-        if(!cuotaRepository.findAllByIdEstudiante(estudiante.getIdEstudiante()).isEmpty()){
-            return errorCuota(listaCuotas, -2);
-        }
-        int maximoCuotas = maximoCuotasEstudiante(estudiante.getTipoColegio());
-        if(cantidad > maximoCuotas){
-            return errorCuota(listaCuotas, -maximoCuotas);
-        }
-        float arancelReal = calcularArancelEstudiante(estudiante);
-        cuotaEntity matricula = crearCuotaMatricula(estudiante);
-        listaCuotas.add(matricula);
-        cuotaRepository.save(matricula);
-        for(int i = 0; i < cantidad;i++){
-            cuotaEntity cuota = crearCuota(estudiante, arancelReal, cantidad, tipoCuota);
-            cuotaRepository.save(cuota);
-            listaCuotas.add(cuota);
-        }
-        return listaCuotas;
-    }
-
-    public void actualizarCuotas(List<cuotaEntity> cuotas){
-        cuotaRepository.saveAll(cuotas);
+    @Generated
+    public ArrayList<cuotaEntity> ActualizarCuotas(ArrayList<cuotaEntity> Cuotas){
+        return (ArrayList<cuotaEntity>) cuotaRepository.saveAll(Cuotas);
     }
 }
