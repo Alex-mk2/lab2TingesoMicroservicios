@@ -8,7 +8,7 @@ import lab2TingesoM1.service.estudianteService;
 
 @RestController
 @RequestMapping("/estudiante")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000", methods = {RequestMethod.GET, RequestMethod.POST}, allowedHeaders = "*")
 public class estudianteController{
 
     @Autowired
