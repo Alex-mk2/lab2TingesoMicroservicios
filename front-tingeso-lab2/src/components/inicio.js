@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import Estudiante from './estudiante';
-import Registrar from './registrarCuotas';
+import MostrarCuotas from './mostrarCuotasEstudiante';
 import CargarArchivo from './SubirArchivo';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -45,10 +45,10 @@ export default function Inicio() {
       componentToDisplay = <ListaEstudiantes/>;
       break;
     case 3:
-      componentToDisplay = <Registrar/>;
+      componentToDisplay = <GenerarCuotas/>;
       break;
     case 4:
-      componentToDisplay = <GenerarCuotas/>;
+      componentToDisplay = <MostrarCuotas/>;
       break;
     case 5:
       componentToDisplay = <CargarArchivo/>;
@@ -100,8 +100,8 @@ export default function Inicio() {
                 Registrar estudiante
               </Button>
               <Button variant="contained" onClick={() => handleButtonClick(2)}>Listar estudiantes</Button>
-              <Button variant="contained" onClick={() => handleButtonClick(3)}>mostrar arancel</Button>
-              <Button variant="contained" onClick={() => handleButtonClick(4)}>registrar pago arancel</Button>
+              <Button variant="contained" onClick={() => handleButtonClick(3)}>generar cuotas estudiante</Button>
+              <Button variant="contained" onClick={() => handleButtonClick(4)}>consultar estado cuota estudiante</Button>
               <Button variant="contained" onClick={() => handleGenerarTablasPorClick()}>subir archivo csv</Button>
             </Stack>
           </Container>

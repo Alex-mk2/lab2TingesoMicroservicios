@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import EstudianteService from '../services/EstudianteService';
 import {
   Button,
   Card,
@@ -20,6 +21,8 @@ const Estudiante = () => {
   const [egresoColegio, setEgresoColegio] = useState(null);
   const [alerta, setAlerta] = useState(null);
 
+  const estudianteService = EstudianteService;  
+
   const handleNombreChange = (e) => {
     setNombres(e.target.value);
   };
@@ -30,7 +33,7 @@ const Estudiante = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     const estudianteData = {
       nombres: nombres,
       apellidos: apellidos,
@@ -40,14 +43,8 @@ const Estudiante = () => {
       nombreColegio: nombreColegio,
       egresoColegio: egresoColegio,
     };
-
-    fetch("http://localhost:8080/estudiante", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(estudianteData),
-    })
+  
+    estudianteService.createEstudiante(estudianteData)
       .then((response) => {
         if (response.ok) {
           setAlerta({ type: "success", message: "Estudiante creado con éxito" });
@@ -67,8 +64,12 @@ const Estudiante = () => {
       })
       .catch((error) => {
         console.error("Error de conexión", error);
+        setAlerta({
+          type: "error",
+          message: "Error al conectar con el servidor",
+        });
       });
-  };
+    }      
 
   return (
     <Card>
@@ -104,7 +105,7 @@ const Estudiante = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label="FechaNacimiento"
+                label="Fecha de Nacimiento"
                 fullWidth
                 value={fechaNacimiento}
                 onChange={(e) => setFechaNacimiento(e.target.value)}
@@ -112,7 +113,7 @@ const Estudiante = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label="TipoColegio"
+                label="Tipo de Colegio"
                 fullWidth
                 value={tipoColegio}
                 onChange={(e) => setTipoColegio(e.target.value)}
@@ -120,7 +121,7 @@ const Estudiante = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label="NombreColegio"
+                label="Nombre del Colegio"
                 fullWidth
                 value={nombreColegio}
                 onChange={(e) => setNombreColegio(e.target.value)}
@@ -128,7 +129,7 @@ const Estudiante = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label="EgresoColegio"
+                label="Egreso del Colegio"
                 fullWidth
                 value={egresoColegio}
                 onChange={(e) => setEgresoColegio(e.target.value)}

@@ -1,5 +1,5 @@
 import React from "react";
-import Inicio from './components/inicio';
+import Inicio from "./components/inicio";
 
 const App = () =>{
   return <Inicio/>;
