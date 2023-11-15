@@ -59,26 +59,25 @@ spec:
                 secretKeyRef:
                   name: mysql-credentials
                   key: MYSQL_PASSWORD
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-credentials
-                  key: MYSQL_USER
+
             - name: MYSQL_DB_CUOTAS
               valueFrom:
                 configMapKeyRef:
                   name: mysql-config-map
                   key: MYSQL_DB_CUOTAS
+
             - name: MYSQL_DB_ESTUDIANTES
               valueFrom:
                 configMapKeyRef:
                   name: mysql-config-map
                   key: MYSQL_DB_ESTUDIANTES
+
             - name: MYSQL_DB_PRUEBAS
               valueFrom:
                 configMapKeyRef:
                   name: mysql-config-map
                   key: MYSQL_DB_PRUEBAS
+                  
           volumeMounts:
               - mountPath: /var/lib/mysql
                 name: db-data
