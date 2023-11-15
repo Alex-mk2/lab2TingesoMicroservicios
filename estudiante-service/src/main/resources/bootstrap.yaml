@@ -1,0 +1,21 @@
+spring:
+  devtools:
+    restart:
+      aditional-paths: src/main/java
+  application:
+    name: estudiante-service
+  cloud:
+    config:
+      enabled: true
+      uri: http://localhost:8081
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    database: MYSQL
+    hibernate:
+      ddl-auto: create
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/estudiantes?autorReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: alex31245
