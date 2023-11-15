@@ -1,0 +1,29 @@
+server:
+  port: 8085
+spring:
+  devtools:
+    restart:
+      aditional-paths: src/main/java/lab2TingesoM2
+  application:
+    name: cuotas-service
+  cloud:
+    config:
+      enabled: false
+      uri: http://localhost:8081
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    database: MYSQL
+    hibernate:
+      ddl-auto: create
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cuotas?autorReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: alex31245
+    logging:
+      level:
+        org.springframework.core.env: DEBUG
+        org.springframework.boot.web.server: DEBUG
+
+
