@@ -24,15 +24,15 @@ spring:
             allowed-headers: "*"
             allow-credentials: true
       routes:
-        - id: backend-estudiantes-service
-          uri: lb://backend-estudiantes-service
+        - id: estudiante-service
+          uri: lb://estudiante-service
           predicates:
             - Path=/estudiante/**
-        - id: backend-cuotas-service
-          uri: lb://backend-cuotas-service
+        - id: cuotas-service
+          uri: lb://cuotas-service
           predicates:
             - Path=/cuotas/**
-        - id: backend-pruebas-service
-          uri: lb://backend-pruebas-service
+        - id: pruebas-service
+          uri: lb://pruebas-service
           predicates:
             - Path=/pruebas/**

@@ -11,5 +11,5 @@ eureka:
 management:
   endpoints:
     web:
-      exposure:
+      explosure:
         include: "*"
