@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config-map
+  labels:
+    app: mysql-config-map
+data:
+  MYSQL_DB_HOST: mysql
+  #base de dato Cuotas
+  MYSQL_DB_CUOTAS: cuotas
+  #base de dato Estudiantes
+  MYSQL_DB_ESTUDIANTES: estudiantes
+  #base de dato Pruebas
+  MYSQL_DB_PRUEBAS: pruebas
